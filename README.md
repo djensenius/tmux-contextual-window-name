@@ -94,3 +94,7 @@ make test
 ```
 
 GitHub Actions runs both commands on pushes to `main`, pull requests, and manual workflow dispatches.
+
+## License
+
+MIT
