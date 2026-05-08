@@ -41,6 +41,9 @@ set -g @contextual-window-name-python-bin "python3"
 set -g @contextual-window-name-observe-osc-title "off"
 set -g @contextual-window-name-popup-width "85%"
 set -g @contextual-window-name-popup-height "80%"
+set -g @contextual-window-name-popup-key "X"
+set -g @contextual-window-name-window-picker-key "W"
+set -g @contextual-window-name-customize-key "C"
 ```
 
 By default, `copilot`, `nvim`, and `fish` windows render the git-root basename or current path basename. Other commands render the command name.
@@ -66,9 +69,9 @@ Copilot OSC title updates exposed by tmux as `#{pane_title}` are used to derive 
 
 ## Popup
 
-The plugin binds `prefix X` to a tmux popup showing Copilot session context for Copilot panes and generic path/repo information for other panes. It refreshes every two seconds while open so title/intent/state changes show up without reopening. `prefix C` is left on tmux's default `customize-mode -Z` binding.
+The plugin binds `prefix X` by default to a tmux popup showing Copilot session context for Copilot panes and generic path/repo information for other panes. It refreshes every two seconds while open so title/intent/state changes show up without reopening. Change `@contextual-window-name-popup-key` to use a different key. `prefix C` is left on tmux's default `customize-mode -Z` binding and can be changed with `@contextual-window-name-customize-key`.
 
-It also binds `prefix W` to an fzf-style fuller-context window/pane picker. Every pane in every window gets its own row, so multiple Copilot/agent panes are shown independently with their own OSC 2 title, intent, session/model/context/change details, and state source when available. Press Enter to switch to the selected pane, Ctrl-R to reload the pane list and preview from live tmux/status state, or Esc to close it.
+It also binds `prefix W` by default to an fzf-style fuller-context window/pane picker. Change `@contextual-window-name-window-picker-key` to use a different key. Every pane in every window gets its own row, so multiple Copilot/agent panes are shown independently with their own OSC 2 title, intent, session/model/context/change details, and state source when available. Press Enter to switch to the selected pane, Ctrl-R to reload the pane list and preview from live tmux/status state, or Esc to close it.
 
 If `fzf` is unavailable or the command is run outside a TTY, it falls back to a numbered plain-text picker. You can force that mode with:
 

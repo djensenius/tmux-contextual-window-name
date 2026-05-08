@@ -38,6 +38,9 @@ set_default "@contextual-window-name-python-bin" "python3"
 set_default "@contextual-window-name-observe-osc-title" "off"
 set_default "@contextual-window-name-popup-width" "85%"
 set_default "@contextual-window-name-popup-height" "80%"
+set_default "@contextual-window-name-popup-key" "X"
+set_default "@contextual-window-name-window-picker-key" "W"
+set_default "@contextual-window-name-customize-key" "C"
 
 install_statusline
 
@@ -53,9 +56,12 @@ tmux set-option -gq automatic-rename-format "$icon_format"
 
 popup_width="$(tmux show-option -gqv @contextual-window-name-popup-width)"
 popup_height="$(tmux show-option -gqv @contextual-window-name-popup-height)"
+popup_key="$(tmux show-option -gqv @contextual-window-name-popup-key)"
+window_picker_key="$(tmux show-option -gqv @contextual-window-name-window-picker-key)"
+customize_key="$(tmux show-option -gqv @contextual-window-name-customize-key)"
 
-tmux bind-key C customize-mode -Z
-tmux bind-key X run-shell "tmux display-popup -w '$popup_width' -h '$popup_height' -E \"$PLUGIN_BIN popup --watch --pane #{q:pane_id} --window #{q:window_id} --command #{q:pane_current_command} --path #{q:pane_current_path} --title #{q:pane_title}\""
-tmux bind-key W display-popup -w "$popup_width" -h "$popup_height" -E "$PLUGIN_BIN windows"
+tmux bind-key "$customize_key" customize-mode -Z
+tmux bind-key "$popup_key" run-shell "tmux display-popup -w '$popup_width' -h '$popup_height' -E \"$PLUGIN_BIN popup --watch --pane #{q:pane_id} --window #{q:window_id} --command #{q:pane_current_command} --path #{q:pane_current_path} --title #{q:pane_title}\""
+tmux bind-key "$window_picker_key" display-popup -w "$popup_width" -h "$popup_height" -E "$PLUGIN_BIN windows"
 
 tmux set-hook -g pane-exited[99] "run-shell '$PLUGIN_BIN prune --pane \"#{pane_id}\"'"
