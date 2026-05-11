@@ -46,7 +46,7 @@ set -g @contextual-window-name-window-picker-key "W"
 set -g @contextual-window-name-customize-key "C"
 ```
 
-By default, `copilot`, `nvim`, and `fish` windows render the git-root basename or current path basename. Other commands render the command name.
+By default, `copilot`, `nvim`, and `fish` windows render the git-root basename or current path basename. Other commands render the command name. Node panes are special-cased: when the current command is `node`, the helper inspects the pane process tree and uses the script/package name (for example `vite`, `server`, or the nearest `package.json` `name`) instead of the generic `node` label.
 
 ## Copilot status line
 

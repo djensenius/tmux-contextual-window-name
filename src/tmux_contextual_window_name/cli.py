@@ -40,12 +40,14 @@ def cmd_name(args: argparse.Namespace) -> int:
     max_length = _int_option("@contextual-window-name-max-length", 24)
     fallback_max_length = _int_option("@contextual-window-name-fallback-max-length", 16)
     commands = tmux_option("@contextual-window-name-commands", "copilot nvim fish")
+    context = pane_context(args.pane) if args.pane and not args.pane_pid else None
     label = label_for_pane(
-        command=args.command,
-        path=args.path,
+        command=args.command or (context or {}).get("command"),
+        path=args.path or (context or {}).get("path"),
         commands=commands,
         max_length=max_length,
         fallback_max_length=fallback_max_length,
+        pane_pid=args.pane_pid or (context or {}).get("pane_pid"),
     )
 
     title = normalize_title(args.title)
@@ -207,6 +209,7 @@ def parser() -> argparse.ArgumentParser:
     name.add_argument("--command", default="")
     name.add_argument("--path", default="")
     name.add_argument("--title", default="")
+    name.add_argument("--pane-pid", default="")
     name.set_defaults(func=cmd_name)
 
     popup = subcommands.add_parser("popup")
