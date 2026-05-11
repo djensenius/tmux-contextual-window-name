@@ -129,7 +129,7 @@ def render_window_picker(windows: list[TmuxWindow], state_dir: str | None = None
     store = StateStore(state_dir) if state_dir is not None else None
     for row, window in enumerate(windows, start=1):
         marker = "*" if window.active else " "
-        label = label_for_pane(command=window.command, path=window.path)
+        label = label_for_pane(command=window.command, path=window.path, pane_pid=window.pane_pid)
         panes = f"{window.panes} panes" if window.panes != "1" else "1 pane"
         command = window.command or "pane"
         lines.append(
@@ -154,7 +154,7 @@ def build_picker_entries(
     entries: list[PickerEntry] = []
     for window in windows:
         marker = "*" if window.active else " "
-        label = label_for_pane(command=window.command, path=window.path)
+        label = label_for_pane(command=window.command, path=window.path, pane_pid=window.pane_pid)
         command = window.command or "pane"
         state, status = _state_for_window(window, store, ttl_seconds)
         details = _copilot_details(window, state, status) if command == "copilot" or state else _generic_details(window)

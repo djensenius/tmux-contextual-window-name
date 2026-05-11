@@ -47,6 +47,7 @@ class TmuxWindow:
     command: str
     path: str
     title: str
+    pane_pid: str = ""
 
 
 def list_windows() -> list[TmuxWindow]:
@@ -64,6 +65,7 @@ def list_windows() -> list[TmuxWindow]:
             "#{pane_current_command}",
             "#{pane_current_path}",
             "#{pane_title}",
+            "#{pane_pid}",
         )
     )
     try:
@@ -81,7 +83,7 @@ def list_windows() -> list[TmuxWindow]:
     windows: list[TmuxWindow] = []
     for line in result.stdout.splitlines():
         parts = line.split(separator)
-        if len(parts) != 11:
+        if len(parts) != 12:
             continue
         windows.append(
             TmuxWindow(
@@ -95,6 +97,7 @@ def list_windows() -> list[TmuxWindow]:
                 command=parts[8],
                 path=parts[9],
                 title=parts[10],
+                pane_pid=parts[11],
             )
         )
     return windows
@@ -121,7 +124,9 @@ def select_window(target: str) -> bool:
 
 def pane_context(pane_id: str) -> dict[str, str] | None:
     separator = "\t"
-    fmt = separator.join(("#{window_id}", "#{pane_current_command}", "#{pane_current_path}", "#{pane_title}"))
+    fmt = separator.join(
+        ("#{window_id}", "#{pane_current_command}", "#{pane_current_path}", "#{pane_title}", "#{pane_pid}")
+    )
     try:
         result = subprocess.run(
             ["tmux", "display-message", "-p", "-t", pane_id, fmt],
@@ -134,11 +139,12 @@ def pane_context(pane_id: str) -> dict[str, str] | None:
     except (OSError, subprocess.SubprocessError):
         return None
     parts = result.stdout.rstrip("\n").split(separator)
-    if len(parts) != 4:
+    if len(parts) != 5:
         return None
     return {
         "window_id": parts[0],
         "command": parts[1],
         "path": parts[2],
         "title": parts[3],
+        "pane_pid": parts[4],
     }

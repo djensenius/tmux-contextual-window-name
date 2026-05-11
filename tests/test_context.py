@@ -3,8 +3,9 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from tmux_contextual_window_name.context import label_for_pane, path_slug
+from tmux_contextual_window_name.context import label_for_pane, node_process_name, node_process_name_from_command_line, path_slug
 
 
 class ContextTests(unittest.TestCase):
@@ -37,6 +38,40 @@ class ContextTests(unittest.TestCase):
 
     def test_unknown_command_uses_command(self):
         self.assertEqual(label_for_pane(command="python", path=os.getcwd()), "python")
+
+    def test_node_command_uses_script_name(self):
+        self.assertEqual(
+            label_for_pane(command="node", path=os.getcwd(), process_command_line="node ./scripts/dev-server.js"),
+            "dev-server",
+        )
+
+    def test_node_command_skips_node_options(self):
+        self.assertEqual(
+            node_process_name_from_command_line("/usr/local/bin/node --inspect=0 -r ts-node/register src/server.ts"),
+            "server",
+        )
+        self.assertEqual(node_process_name_from_command_line("node --inspect src/api.js"), "api")
+
+    def test_node_command_uses_renamed_node_process_before_package_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)
+            (path / "package.json").write_text('{"name":"pi-catppuccin-fallback"}', encoding="utf-8")
+            rows = [(1, 0, "fish", "-fish"), (2, 1, "pi", "pi")]
+            with patch("tmux_contextual_window_name.context._process_rows", return_value=rows):
+                self.assertEqual(node_process_name("node", str(path), pane_pid=1), "pi")
+
+    def test_node_command_falls_back_to_package_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)
+            (path / "package.json").write_text('{"name":"example-app"}', encoding="utf-8")
+            self.assertEqual(
+                label_for_pane(
+                    command="node",
+                    path=str(path),
+                    process_command_line="node -e 'setInterval(()=>{},1000)'",
+                ),
+                "example-app",
+            )
 
     def test_truncates_contextual_and_fallback_labels(self):
         self.assertEqual(
